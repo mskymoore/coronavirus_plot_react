@@ -1,0 +1,3 @@
+[submodule "frontend/gui"]
+	path = frontend/gui
+	url = git@github.com:mskymoore/corona_react.git

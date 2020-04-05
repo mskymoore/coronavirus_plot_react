@@ -32,12 +32,12 @@ class ProvinceStateSerializer(serializers.ModelSerializer):
         model = ProvinceState
         fields = ('province_state')
 
-class CountryRegionSerializer(serializer.ModelSerializer):
+class CountryRegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = CountryRegion
         fields = ('region_country')
 
-class CountySerializer(serializer.ModelSerializer):
+class CountySerializer(serializers.ModelSerializer):
     class Meta:
         model = County
         fields = ('county')

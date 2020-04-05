@@ -19,13 +19,13 @@ def create_hash(friendly_name):
     return sha256(friendly_name.encode()).hexdigest()
 
 class ProvinceState(models.Model):
-    province_state = models.CharField(max_length=100, default='')
+    province_state = models.CharField(primary_key=True, max_length=100, default='')
 
 class CountryRegion(models.Model):
-    region_country = models.CharField(max_length=100, default='')
+    region_country = models.CharField(primary_key=True,max_length=100, default='')
 
 class County(models.Model):
-    county = models.CharField(max_length=100, default='')
+    county = models.CharField(primary_key=True, max_length=100, default='')
 
 class Location(models.Model):
     province_state = models.ForeignKey(ProvinceState, on_delete=models.DO_NOTHING)

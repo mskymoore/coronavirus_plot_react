@@ -18,24 +18,19 @@ def create_friendly_name(province, region, county=''):
 def create_hash(friendly_name):
     return sha256(friendly_name.encode()).hexdigest()
 
-#class ProvinceState(models.Model):
-#    province_state = models.CharField(max_length=100, default='')
-#
-#class CountryRegion(models.Model):
-#    region_country = models.CharField(max_length=100, default='')
-#
-#class County(models.Model):
-#    county = models.CharField(max_length=100, default='')
-
-class Location(models.Model):
-    #province_state = models.ForeignKey(ProvinceState, on_delete=models.DO_NOTHING)
-    #region_country = models.ForeignKey(ProvinceState, on_delete=models.DO_NOTHING)
-    #county = models.ForeignKey(ProvinceState, on_delete=models.DO_NOTHING)
-    
+class ProvinceState(models.Model):
     province_state = models.CharField(max_length=100, default='')
+
+class CountryRegion(models.Model):
     region_country = models.CharField(max_length=100, default='')
+
+class County(models.Model):
     county = models.CharField(max_length=100, default='')
 
+class Location(models.Model):
+    province_state = models.ForeignKey(ProvinceState, on_delete=models.DO_NOTHING)
+    region_country = models.ForeignKey(CountryRegion, on_delete=models.DO_NOTHING)
+    county = models.ForeignKey(County, on_delete=models.DO_NOTHING)
     latitude = models.CharField(max_length=50)
     longitude = models.CharField(max_length=50)
     friendly_name = models.CharField(max_length=100)

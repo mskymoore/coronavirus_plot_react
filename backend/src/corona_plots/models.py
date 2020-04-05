@@ -24,7 +24,7 @@ class ProvinceState(models.Model):
         return str(self.province_state)
 
 class CountryRegion(models.Model):
-    region_country = models.CharField(primary_key=True,max_length=100, default='')
+    region_country = models.CharField(primary_key=True, max_length=100, default='')
     def __str__(self):
         return str(self.region_country)
 
@@ -40,7 +40,7 @@ class Location(models.Model):
     latitude = models.CharField(max_length=50)
     longitude = models.CharField(max_length=50)
     friendly_name = models.CharField(max_length=100)
-    friendly_hash = models.CharField(max_length=100)
+    friendly_hash = models.CharField(primary_key=True, max_length=100)
     def __str__(self):
         return self.friendly_name
 

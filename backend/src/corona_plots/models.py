@@ -60,6 +60,7 @@ class Location(models.Model):
 class Plot(models.Model):
     plot_case_type = models.ForeignKey(CaseType, on_delete=models.DO_NOTHING)
     plot_location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
+    plot_name = models.CharField(primary_key=True, max_length=100, default='')
     plot = models.CharField(max_length=1000, default='')
     def __str__(self):
         return str(self.plot)

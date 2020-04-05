@@ -1,9 +1,9 @@
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from corona_plots.models import Location, HistoricEntry, ProvinceState
-from corona_plots.models import CountryRegion, County
+from corona_plots.models import CountryRegion, County, Plot
 from .serializers import LocationSerializer, HistoricEntrySerializer
 from .serializers import ProvinceStateSerializer, CountryRegionSerializer
-from .serializers import CountySerializer
+from .serializers import CountySerializer, PlotSerializer
 
 
 class LocationListView(ListAPIView):
@@ -45,3 +45,7 @@ class HistoricEntryListView(ListAPIView):
 class HistoricEntryDetailView(RetrieveAPIView):
     queryset = HistoricEntry.objects.all()
     serializer_class = HistoricEntrySerializer
+
+class PlotDetailView(RetrieveAPIView):
+    queryset = Plot.objects.all()
+    serializer_class = PlotSerializer

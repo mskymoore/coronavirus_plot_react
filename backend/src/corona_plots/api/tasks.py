@@ -1,5 +1,5 @@
 import csv, requests
-from .models import Location, HistoricEntry, create_friendly_name, create_hash
+from corona_plots.models import Location, HistoricEntry, create_friendly_name, create_hash
 from .coronaVars import global_province_key, global_country_key, csv_global_urls 
 from .coronaVars import global_lat_key, global_long_key
 from .coronaVars import us_county_key, us_province_key, us_country_key, csv_us_urls
@@ -16,6 +16,9 @@ from hashlib import sha256
 def update_database_global(csv_file, case_status_type_id):
 
     locs = { loc.friendly_hash: loc for loc in Location.objects.all() }
+    province_state = { ps.province_state : ps for ps in ProvinceState.objects.all() }
+    country_region = { cr.region_country : cr for cr in CountryRegion.objects.all() }
+    county = { cnty.county : cnty for cnty in County.objects.all() }
 
     # DEBUG
     row_num = 0
@@ -76,6 +79,10 @@ def update_database_global(csv_file, case_status_type_id):
 def update_database_us(csv_file, case_status_type_id):
 
     locs = { loc.friendly_hash: loc for loc in Location.objects.all() }
+    province_state = { ps.province_state : ps for ps in ProvinceState.objects.all() }
+    country_region = { cr.region_country : cr for cr in CountryRegion.objects.all() }
+    county = { cnty.county : cnty for cnty in County.objects.all() }
+
 
     # DEBUG
     row_num = 0

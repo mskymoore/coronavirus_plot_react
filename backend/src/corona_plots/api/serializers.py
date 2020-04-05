@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from corona_plots.models import Location, HistoricEntry, ProvinceState
-from corona_plots.models import CountryRegion, County
+from corona_plots.models import CountryRegion, County, Plot
 
 
 
@@ -40,3 +40,8 @@ class CountySerializer(serializers.ModelSerializer):
     class Meta:
         model = County
         fields = ('county')
+
+class PlotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plot
+        fields = ('id', 'plot_case_type', 'plot_location', 'plot')

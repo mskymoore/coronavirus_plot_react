@@ -1,6 +1,6 @@
 import csv, requests
-from corona_plots.models import Location, HistoricEntry, create_friendly_name, create_hash
-from corona_plots.models import County, ProvinceState, CountryRegion, CaseType
+from .models import Location, HistoricEntry, create_friendly_name, create_hash
+from .models import County, ProvinceState, CountryRegion, CaseType
 from .coronaVars import global_province_key, global_country_key, csv_global_urls 
 from .coronaVars import global_lat_key, global_long_key
 from .coronaVars import us_county_key, us_province_key, us_country_key, csv_us_urls

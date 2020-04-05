@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['333.isos.tech']
 
-REDIS_HOST = 'redis'
+REDIS_HOST = '127.0.0.1'
 POSTGRES_HOST = 'db'
 # Application definition
 
@@ -148,7 +148,7 @@ CELERY_TIMEZONE = 'US/Eastern'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
     'update-database': {
-        'task': 'corona_plots.api.tasks.do_data_update',
+        'task': 'corona_plots.tasks.do_data_update',
         'schedule': td(hours=6),
         # 'args': (*args)
     }

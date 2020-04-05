@@ -5,7 +5,8 @@ from corona_plots.models import Location, HistoricEntry
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ('province_state',
+        fields = ('id',
+                  'province_state',
                   'region_country',
                   'county',
                   'latitude',

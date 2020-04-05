@@ -4,6 +4,7 @@ from corona_plots.models import CountryRegion, County, Plot
 from .serializers import LocationSerializer, HistoricEntrySerializer
 from .serializers import ProvinceStateSerializer, CountryRegionSerializer
 from .serializers import CountySerializer, PlotSerializer
+from corona_plots.methods import get_plots
 
 
 class LocationListView(ListAPIView):
@@ -49,3 +50,27 @@ class HistoricEntryDetailView(RetrieveAPIView):
 class PlotDetailView(RetrieveAPIView):
     queryset = Plot.objects.all()
     serializer_class = PlotSerializer
+
+class PlotsListView(ListAPIView):
+    queryset = Plot.objects.all()
+    serializer_class = PlotSerializer
+
+def PlotsGen(request):
+    locationFriendlyHash = request.GET['friendly_hash']
+    location = Location.objects.all().filter(friendly_hash=locationFriendlyHash).first()
+    case_types = location.case_types
+    for case_type in case_types:
+        aPlot = Plot(
+            case_type = case_type,
+            location = location,
+            name = location.friendly_hash + case_type,
+            friendly_name = location.friendly_name + ' ' + .case_type,
+            plot = get_plots(location, series_type)
+        )
+        aPlot.save()
+    return f'{location} {case_types} plots generated.'
+
+
+
+    
+

@@ -54,6 +54,7 @@ class Location(models.Model):
     longitude = models.CharField(max_length=50)
     friendly_name = models.CharField(max_length=100)
     friendly_hash = models.CharField(primary_key=True, max_length=100)
+    case_types = models.ManyToManyField(CaseType)
     def __str__(self):
         return self.friendly_name
 
@@ -62,9 +63,9 @@ class Plot(models.Model):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
     name = models.CharField(primary_key=True, max_length=100, default='')
     friendly_name = models.CharField(max_length=100, default='')
-    plot = models.CharField(max_length=1000, default='')
+    plot = models.CharField(max_length=2000, default='')
     def __str__(self):
-        return str(self.plot)
+        return str(self.friendly_name)
 
 class HistoricEntry(models.Model):
     date = models.DateField()

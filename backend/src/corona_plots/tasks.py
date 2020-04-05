@@ -94,12 +94,6 @@ def update_database_us(csv_file, case_status_type_id):
 
     for row in csv_file:
         # DEBUG
-        if row_num < 6:
-            row_num = row_num + 1
-            continue
-    
-        if row[us_province_key] != 'Texas':
-            continue
         
         county = row[us_county_key]
         province = row[us_province_key]

@@ -44,4 +44,4 @@ class CountySerializer(serializers.ModelSerializer):
 class PlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plot
-        fields = ('id', 'plot_case_type', 'plot_location', 'plot')
+        fields = ('id', 'friendly_name', 'case_type', 'location', 'plot')

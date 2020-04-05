@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['333.isos.tech']
 
 REDIS_HOST = 'redis'
-POSTGRES+HOST = 'db'
+POSTGRES_HOST = 'db'
 # Application definition
 
 INSTALLED_APPS = [

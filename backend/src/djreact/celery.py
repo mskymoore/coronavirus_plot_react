@@ -3,9 +3,9 @@ from celery import Celery
 from celery.signals import celeryd_init
 
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'coronavirus_plot_web.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djreact.settings')
 
-app = Celery('coronavirus_plot_web')
+app = Celery('djreact')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 

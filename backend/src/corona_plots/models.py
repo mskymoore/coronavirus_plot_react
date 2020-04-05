@@ -33,6 +33,19 @@ class County(models.Model):
     def __str__(self):
         return str(self.county)
 
+class CaseType(models.Model):
+    confirmed = 'cnfd'
+    deaths = 'rip'
+    recovered = 'rcvrd'
+    case_type_choices =[
+        (confirmed, 'confirmed'),
+        (deaths, 'deaths'),
+        (recovered, 'recovered')
+    ]
+    case_type = models.CharField(primary_key=True, max_length=100, default=confirmed, choices=case_type_choices)
+    def __str__(self):
+        return str(self.case_type)
+
 class Location(models.Model):
     province_state = models.ForeignKey(ProvinceState, on_delete=models.DO_NOTHING)
     region_country = models.ForeignKey(CountryRegion, on_delete=models.DO_NOTHING)
@@ -44,11 +57,17 @@ class Location(models.Model):
     def __str__(self):
         return self.friendly_name
 
+class Plot(models.Model):
+    plot_case_type = models.ForeignKey(CaseType, on_delete=models.DO_NOTHING)
+    plot_location = models.ForeignKey(Location, on_delete=models.DO_NOTHING)
+    plot = models.CharField(max_length=1000, default='')
+    def __str__(self):
+        return str(self.plot)
 
 class HistoricEntry(models.Model):
     date = models.DateField()
     count = models.IntegerField(default=0)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    case_status_type_id = models.CharField(max_length=25)
+    case_status_type_id = models.ForeignKey(CaseType, on_delete=models.DO_NOTHING)
     def __str__(self):
        return str(self.date) + ':' + str(self.count)

@@ -57,14 +57,16 @@ class PlotsListView(ListAPIView):
 
 def PlotsGen(request):
     locationFriendlyHash = request.GET['friendly_hash']
+    print(locationFriendlyHash)
     location = Location.objects.all().filter(friendly_hash=locationFriendlyHash).first()
     case_types = location.case_types
+    print(case_types)
     for case_type in case_types:
         aPlot = Plot(
             case_type = case_type,
             location = location,
             name = location.friendly_hash + case_type,
-            friendly_name = location.friendly_name + ' ' + .case_type,
+            friendly_name = location.friendly_name + ' ' + case_type,
             plot = get_plots(location, series_type)
         )
         aPlot.save()

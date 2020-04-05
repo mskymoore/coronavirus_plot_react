@@ -101,6 +101,9 @@ def update_database_us(csv_file, case_status_type_id):
         lat = row[us_lat_key]
         lon = row[us_long_key]
 
+        if province != "Texas":
+            continue
+
 
         friendly_name = create_friendly_name(province, region, county=county)
         friendly_hash = create_hash(friendly_name)

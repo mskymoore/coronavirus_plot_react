@@ -1,5 +1,6 @@
 import csv, requests
 from corona_plots.models import Location, HistoricEntry, create_friendly_name, create_hash
+from corona_plots.models import County, ProvinceState, CountryRegion, CaseType
 from .coronaVars import global_province_key, global_country_key, csv_global_urls 
 from .coronaVars import global_lat_key, global_long_key
 from .coronaVars import us_county_key, us_province_key, us_country_key, csv_us_urls
@@ -9,6 +10,7 @@ from celery import shared_task
 from celery.signals import worker_ready
 from datetime import datetime as dt
 from hashlib import sha256
+from .methods import get_plots
 
 
 # csv_file: csv.DictReader
@@ -81,9 +83,12 @@ def update_database_us(csv_file, case_status_type_id):
     locs = { loc.friendly_hash: loc for loc in Location.objects.all() }
     province_state = { ps.province_state : ps for ps in ProvinceState.objects.all() }
     country_region = { cr.region_country : cr for cr in CountryRegion.objects.all() }
-    county = { cnty.county : cnty for cnty in County.objects.all() }
+    counties = { cnty.county : cnty for cnty in County.objects.all() }
+    csts = {cst.case_type : cst for cst in  CaseType.objects.all() }
 
-
+    if case_status_type_id not in csts:
+        case_status_type_id = CaseType(case_type=case_status_type_id)
+        case_status_type_id.save()
     # DEBUG
     row_num = 0
 
@@ -106,6 +111,19 @@ def update_database_us(csv_file, case_status_type_id):
         friendly_name = create_friendly_name(province, region, county=county)
         friendly_hash = create_hash(friendly_name)
         
+        if county not in counties:
+            county = County(county=county)
+            county.save()
+        
+        if province not in province_state:
+            province = ProvinceState(province_state=province)
+            province.save()
+        
+        if region not in country_region:
+            region = CountryRegion(region_country=region)
+            region.save()
+
+
         if friendly_hash not in locs:
             location = Location(
                 county = county,
@@ -120,7 +138,7 @@ def update_database_us(csv_file, case_status_type_id):
         else:
             location = locs[friendly_hash]
 
-        locations_entries = HistoricEntry.objects.filter(location_id=location, case_status_type_id=case_status_type_id) 
+        locations_entries = HistoricEntry.objects.filter(location=location, case_status_type_id=case_status_type_id) 
         num_historic_db_entries = len(locations_entries)
         
         list_row = [ item for item in row.items() ][12:]
@@ -151,8 +169,8 @@ def do_data_update():
     csv_global_files = [get_file(csv_url) for csv_url in csv_global_urls]
     csv_us_files = [get_file(csv_url) for csv_url in csv_us_urls]
     
-    for case_status_type_name, csv_file in zip(case_status_type_names, csv_global_files):
-        update_database_global(csv_file, case_status_type_name)
+    #for case_status_type_name, csv_file in zip(case_status_type_names, csv_global_files):
+    #    update_database_global(csv_file, case_status_type_name)
 
     for case_status_type_name, csv_file in zip(case_status_type_names[:2], csv_us_files):
         update_database_us(csv_file, case_status_type_name)

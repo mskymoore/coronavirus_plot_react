@@ -3,6 +3,7 @@ from .models import Location, HistoricEntry
 import plotly.offline as po
 import plotly.express as px
 
+
 def generate_percent_growth_series(y_axis_cases):
     
     y_axis_percent_growth = [0]
@@ -55,6 +56,9 @@ def generate_graph_div(series, series_type):
     bar_perc_graph_div = po.plot(fig_bar_perc, auto_open=False, output_type="div", include_plotlyjs=False)
 
     return line_graph_div + bar_perc_graph_div + bar_graph_div
+
+def get_plots(location, series_type):
+    return generate_graph_div(generate_series(series_type, location), series_type)
 
 
 def plots2(request):

@@ -89,6 +89,8 @@ def update_database_us(csv_file, case_status_type_id):
     if case_status_type_id not in csts:
         case_status_type_id = CaseType(case_type=case_status_type_id)
         case_status_type_id.save()
+    else:
+        case_status_type_id = csts[case_status_type_id]
     # DEBUG
     row_num = 0
 
@@ -104,6 +106,9 @@ def update_database_us(csv_file, case_status_type_id):
         if province != "Texas":
             continue
 
+        if row_num == 20:
+            break
+
 
         friendly_name = create_friendly_name(province, region, county=county)
         friendly_hash = create_hash(friendly_name)
@@ -111,14 +116,20 @@ def update_database_us(csv_file, case_status_type_id):
         if county not in counties:
             county = County(county=county)
             county.save()
+        else:
+            county = counties[county]
         
         if province not in province_state:
             province = ProvinceState(province_state=province)
             province.save()
+        else:
+            province = province_state[province]
         
         if region not in country_region:
             region = CountryRegion(region_country=region)
             region.save()
+        else:
+            region = country_region[region]
 
 
         if friendly_hash not in locs:
@@ -134,6 +145,7 @@ def update_database_us(csv_file, case_status_type_id):
             location.save()
         else:
             location = locs[friendly_hash]
+            
 
         locations_entries = HistoricEntry.objects.filter(location=location, case_status_type_id=case_status_type_id) 
         num_historic_db_entries = len(locations_entries)

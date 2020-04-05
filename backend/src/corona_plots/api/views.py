@@ -1,10 +1,12 @@
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from corona_plots.models import Location, HistoricEntry, ProvinceState
-from corona_plots.models import CountryRegion, County, Plot
+from corona_plots.models import CountryRegion, County, Plot, CaseType
 from .serializers import LocationSerializer, HistoricEntrySerializer
 from .serializers import ProvinceStateSerializer, CountryRegionSerializer
 from .serializers import CountySerializer, PlotSerializer
 from corona_plots.methods import get_plots
+from django.http import HttpResponse
+import json
 
 
 class LocationListView(ListAPIView):
@@ -59,18 +61,17 @@ def PlotsGen(request):
     locationFriendlyHash = request.GET['friendly_hash']
     print(locationFriendlyHash)
     location = Location.objects.all().filter(friendly_hash=locationFriendlyHash).first()
-    case_types = location.case_types
-    print(case_types)
+    case_types = ['confirmed', 'deaths']
     for case_type in case_types:
         aPlot = Plot(
-            case_type = case_type,
+            case_type = CaseType(case_type=case_type),
             location = location,
             name = location.friendly_hash + case_type,
             friendly_name = location.friendly_name + ' ' + case_type,
-            plot = get_plots(location, series_type)
+            plot = get_plots(location, case_type)
         )
         aPlot.save()
-    return f'{location} {case_types} plots generated.'
+    return HttpResponse(json.dumps(f'{location.friendly_name} {case_types} plots generated'))
 
 
 

@@ -54,7 +54,6 @@ class Location(models.Model):
     longitude = models.CharField(max_length=50)
     friendly_name = models.CharField(max_length=100)
     friendly_hash = models.CharField(primary_key=True, max_length=100)
-    case_types = models.ManyToManyField(CaseType)
     def __str__(self):
         return self.friendly_name
 

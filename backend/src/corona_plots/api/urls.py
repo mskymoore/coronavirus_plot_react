@@ -18,6 +18,6 @@ urlpatterns = [
     path('historic_entries', HistoricEntryListView.as_view()),
     path('historic_entry/<pk>', HistoricEntryDetailView.as_view()),
     path('plot/<pk>', PlotDetailView.as_view()),
-    path('plots/<pk>', PlotsListView.as_view()),
+    path('plots/<pk>', PlotDetailView.as_view()),
     path('plots_gen/', PlotsGen)
 ]

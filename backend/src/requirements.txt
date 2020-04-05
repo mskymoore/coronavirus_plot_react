@@ -1,3 +1,12 @@
 django
 djangorestframework
 django-cors-headers
+django-celery-beat
+django
+pandas
+plotly
+requests
+PyGithub
+celery
+redis
+psycopg2

@@ -20,12 +20,18 @@ def create_hash(friendly_name):
 
 class ProvinceState(models.Model):
     province_state = models.CharField(primary_key=True, max_length=100, default='')
+    def __str__(self):
+        return str(self.province_state)
 
 class CountryRegion(models.Model):
     region_country = models.CharField(primary_key=True,max_length=100, default='')
+    def __str__(self):
+        return str(self.region_country)
 
 class County(models.Model):
     county = models.CharField(primary_key=True, max_length=100, default='')
+    def __str__(self):
+        return str(self.county)
 
 class Location(models.Model):
     province_state = models.ForeignKey(ProvinceState, on_delete=models.DO_NOTHING)

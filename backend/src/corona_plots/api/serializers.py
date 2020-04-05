@@ -7,8 +7,7 @@ from corona_plots.models import CountryRegion, County
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ('id',
-                  'province_state',
+        fields = ('province_state',
                   'region_country',
                   'county',
                   'latitude',

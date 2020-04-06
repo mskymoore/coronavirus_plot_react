@@ -4,7 +4,7 @@ from .views import HistoricEntryListView, HistoricEntryDetailView
 from .views import ProvinceStateListView, ProvinceStateDetailView
 from .views import CountryRegionListView, CountryRegionDetailView
 from .views import CountyListView, CountyDetailView, PlotDetailView
-from .views import PlotsListView, PlotsGen
+from .views import PlotsListView, PlotsGen, GetSeries
 
 urlpatterns = [
     path('locations', LocationListView.as_view()),
@@ -19,5 +19,6 @@ urlpatterns = [
     path('historic_entry/<pk>', HistoricEntryDetailView.as_view()),
     path('plot/<pk>', PlotDetailView.as_view()),
     path('plots/<pk>', PlotDetailView.as_view()),
-    path('plots_gen/', PlotsGen)
+    path('plots_gen/', PlotsGen),
+    path('series/', GetSeries)
 ]

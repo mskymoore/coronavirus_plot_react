@@ -4,7 +4,7 @@ from corona_plots.models import CountryRegion, County, Plot, CaseType
 from .serializers import LocationSerializer, HistoricEntrySerializer
 from .serializers import ProvinceStateSerializer, CountryRegionSerializer
 from .serializers import CountySerializer, PlotSerializer
-from corona_plots.methods import get_plots
+from corona_plots.methods import get_plots, generate_series
 from django.http import HttpResponse
 import json
 
@@ -57,9 +57,15 @@ class PlotsListView(ListAPIView):
     queryset = Plot.objects.all()
     serializer_class = PlotSerializer
 
+def GetSeries(request):
+    locationFriendlyHash = request.GET['friendly_hash']
+    caseType = request.GET['case_type']
+    location = Location.objects.all().filter(friendly_hash=locationFriendlyHash).first()
+    response = generate_series(caseType, location)
+    return HttpResponse(json.dumps(response))
+
 def PlotsGen(request):
     locationFriendlyHash = request.GET['friendly_hash']
-    print(locationFriendlyHash)
     location = Location.objects.all().filter(friendly_hash=locationFriendlyHash).first()
     case_types = ['confirmed', 'deaths']
     for case_type in case_types:

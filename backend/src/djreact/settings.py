@@ -26,7 +26,7 @@ SECRET_KEY = '+jm8bn233ye8vad#2+yck-9-#$578q18n5awqz*)37oq#v@3g!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['333.isos.tech', '172.31.25.48']
+ALLOWED_HOSTS = ['333.isos.tech', '172.31.25.48', '54.233.113.17']
 
 REDIS_HOST = '127.0.0.1'
 POSTGRES_HOST = 'db'

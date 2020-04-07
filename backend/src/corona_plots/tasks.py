@@ -106,10 +106,6 @@ def update_database_us(csv_file, case_status_type_id):
         if province != "Texas":
             continue
 
-        if row_num == 20:
-            break
-
-
         friendly_name = create_friendly_name(province, region, county=county)
         friendly_hash = create_hash(friendly_name)
         

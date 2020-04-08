@@ -5,17 +5,26 @@ from github import Github
 def get_file(csv_url):
     return csv.DictReader(requests.get(csv_url).iter_lines(decode_unicode=True))
 
+county_key = 'county_key'
+province_key = 'province_key'
+country_key = 'country_key'
+lat_key = 'lat_key'
+long_key = 'long_key'
 
-global_province_key = 'Province/State'
-global_country_key = 'Country/Region'
-global_lat_key = 'Lat'
-global_long_key = 'Long'
+global_keys = {
+    province_key : 'Province/State',
+    country_key : 'Country/Region',
+    lat_key : 'Lat',
+    long_key : 'Long'
+}
 
-us_county_key = 'Admin2'
-us_province_key = 'Province_State'
-us_country_key = 'Country_Region'
-us_lat_key = 'Lat'
-us_long_key = 'Long_'
+us_keys = {
+    county_key : 'Admin2',
+    province_key : 'Province_State',
+    country_key : 'Country_Region',
+    lat_key : 'Lat',
+    long_key : 'Long_'
+}
 
 g = Github("34a2755ef5ef33b83bf7bcf4614a27f6287d5589")
 repo = g.get_repo("CSSEGISandData/COVID-19")

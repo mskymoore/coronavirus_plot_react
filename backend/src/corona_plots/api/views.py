@@ -4,7 +4,7 @@ from corona_plots.models import CountryRegion, County, Plot, CaseType
 from .serializers import LocationSerializer, HistoricEntrySerializer
 from .serializers import ProvinceStateSerializer, CountryRegionSerializer
 from .serializers import CountySerializer, PlotSerializer
-from corona_plots.methods import get_plots, generate_series
+from corona_plots.methods import generate_series
 from django.http import HttpResponse
 import json
 

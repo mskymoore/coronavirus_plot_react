@@ -60,7 +60,7 @@ class PlotsListView(ListAPIView):
 def GetSeries(request):
     locationFriendlyHash = request.GET['friendly_hash']
     caseType = request.GET['case_type']
-    location = Location.objects.all().filter(friendly_hash=locationFriendlyHash).first()
+    location = Location.objects.get(pk=locationFriendlyHash)
     response = generate_series(caseType, location)
     return HttpResponse(json.dumps(response))
 

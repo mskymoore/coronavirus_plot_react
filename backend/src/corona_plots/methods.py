@@ -33,6 +33,7 @@ def generate_series(series_type, location):
 
     
     return {
+        'location': str(location),
         'x_axis' : x_axis_cases,
         'cases' : y_axis_cases,
         'growth' : y_axis_growth,

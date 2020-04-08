@@ -29,14 +29,17 @@ def update_database(csv_file, case_status_type_id, column_keys):
 
     county = False
     for row in csv_file:
-        if county_key in row:
+        if county_key in column_keys:
             county = row[column_keys[county_key]]
         province = row[column_keys[province_key]]
         region = row[column_keys[country_key]]
         lat = row[column_keys[lat_key]]
         lon = row[column_keys[long_key]]
 
-        friendly_name = create_friendly_name(province, region, county=county)
+        if county:
+            friendly_name = create_friendly_name(province, region, county=county)
+        else:
+            friendly_name = create_friendly_name(province, region)
         friendly_hash = create_hash(friendly_name)
         
         if county:
@@ -94,7 +97,7 @@ def update_database(csv_file, case_status_type_id, column_keys):
         if num_historic_db_entries == len(list_row):
             # no new entries, nothing to do
             print('no updates for', case_status_type_id)
-            break 
+            continue 
 
         for entry in list_row[num_historic_db_entries:]:
             HistoricEntry(

@@ -64,22 +64,3 @@ def GetSeries(request):
     response = generate_series(caseType, location)
     return HttpResponse(json.dumps(response))
 
-def PlotsGen(request):
-    locationFriendlyHash = request.GET['friendly_hash']
-    location = Location.objects.all().filter(friendly_hash=locationFriendlyHash).first()
-    case_types = ['confirmed', 'deaths']
-    for case_type in case_types:
-        aPlot = Plot(
-            case_type = CaseType(case_type=case_type),
-            location = location,
-            name = location.friendly_hash + case_type,
-            friendly_name = location.friendly_name + ' ' + case_type,
-            plot = get_plots(location, case_type)
-        )
-        aPlot.save()
-    return HttpResponse(json.dumps(f'{location.friendly_name} {case_types} plots generated'))
-
-
-
-    
-

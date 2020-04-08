@@ -4,6 +4,7 @@ import plotly.offline as po
 import plotly.express as px
 
 
+
 def generate_percent_growth_series(y_axis_cases):
     
     y_axis_percent_growth = [0]
@@ -41,34 +42,19 @@ def generate_series(series_type, location):
     }
 
 
-def generate_graph_div(series, series_type):
-    x_axis_cases = series['x_axis']
-    y_axis_cases = series['cases']
-    y_axis_growth = series['growth']
-    y_axis_percent_growth = series['percent_growth']
-
-    fig_line = px.line(x=x_axis_cases, y=y_axis_cases, title=f'{series_type} cases', template="plotly_dark", labels={'x': 'date', 'y':f'{series_type} cases'})
-    line_graph_div = po.plot(fig_line, auto_open=False, output_type="div", include_plotlyjs=False)
-        
-    fig_bar = px.bar(x=x_axis_cases, y=y_axis_growth, title=f'{series_type} growth', template="plotly_dark", labels={'x': 'date', 'y':f'{series_type} growth'})
-    bar_graph_div = po.plot(fig_bar, auto_open=False, output_type="div", include_plotlyjs=False)
-
-    fig_bar_perc = px.bar(x=x_axis_cases, y=y_axis_percent_growth, title=f'{series_type} percent growth', template="plotly_dark", labels={'x': 'date', 'y':f'{series_type} percent growth'})
-    bar_perc_graph_div = po.plot(fig_bar_perc, auto_open=False, output_type="div", include_plotlyjs=False)
-
-    return line_graph_div + bar_perc_graph_div + bar_graph_div
-
-def get_plots(location, series_type):
-    return generate_graph_div(generate_series(series_type, location), series_type)
-
-
-def plots2(request):
-    location = request.GET['location']
+def level_series(level, value):
+    # TODO: set this up to aggregate state and country data
+    # level optons: province_state, region_country
+    # value the string value for that loction
+    level = request.GET['level']
+    value = request.GET['value']
     locations = Location.objects.filter(province_state=location).all()
     location_series = {}
     
     for sublocation in locations:
-        location_series[sublocation.friendly_hash] = { series_type : generate_series(series_type, sublocation) for series_type in case_status_type_names[:2] }
+        location_series[sublocation.friendly_hash] = { 
+            series_type : generate_series(series_type, sublocation) for series_type in case_status_type_names[:2] 
+        }
     
     location_sum_series = {}
 

@@ -8,7 +8,6 @@ from celery import shared_task
 from celery.signals import worker_ready
 from datetime import datetime as dt
 from hashlib import sha256
-from .methods import get_plots
 
 
 # csv_file: csv.DictReader

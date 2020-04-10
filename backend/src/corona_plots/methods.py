@@ -42,22 +42,15 @@ def generate_series(series_type, location):
     }
 
 
-def level_series(level, value):
-    # TODO: set this up to aggregate state and country data
-    # level optons: province_state, region_country
-    # value the string value for that loction
-    level = request.GET['level']
-    value = request.GET['value']
-    locations = Location.objects.filter(province_state=location).all()
-    location_series = {}
+def level_series(locations):
     
+    location_series = {}
     for sublocation in locations:
         location_series[sublocation.friendly_hash] = { 
-            series_type : generate_series(series_type, sublocation) for series_type in case_status_type_names[:2] 
+            series_type : generate_series(series_type, sublocation) for series_type in case_status_type_names 
         }
     
     location_sum_series = {}
-
     for series_type in case_status_type_names[:2]:
         x_axis = location_series[next(iter(location_series))][series_type]['x_axis']
         y_axis_cases = [ 0 for i in x_axis ]
@@ -80,3 +73,15 @@ def level_series(level, value):
             'growth' : y_axis_growth,
             'percent_growth' : y_axis_percent_growth
         }
+    
+    return location_sum_series
+
+
+def region_country_series(region_country):
+    locations = Location.objects.filter(region_country=region_country).all()
+    return level_series(locations)
+
+def state_province_series(state_province):
+    locations = Location.objects.filter(state_province=state_province).all()
+    return level_series(locations)
+

@@ -35,6 +35,9 @@ def update_database(csv_file, case_status_type_id, column_keys):
         lat = row[column_keys[lat_key]]
         lon = row[column_keys[long_key]]
 
+        if province != 'Texas':
+            continue
+
         if county:
             friendly_name = create_friendly_name(province, region, county=county)
         else:
@@ -103,6 +106,9 @@ def update_database(csv_file, case_status_type_id, column_keys):
                 date = dt.strptime(entry[0], '%m/%d/%y').strftime('%Y-%m-%d'),
                 location = location,
                 count = int(entry[1]),
+                county = location.county,
+                province_state = location.province_state,
+                region_country = location.region_country,
                 case_status_type_id = case_status_type_id
             ).save()
             print('new {status_type} historical entry {num} for {date} {location}'.format(

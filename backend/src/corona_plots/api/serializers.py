@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from corona_plots.models import Location, HistoricEntry, ProvinceState
-from corona_plots.models import CountryRegion, County
+from corona_plots.models import Location, EntryDate, ProvinceState
+from corona_plots.models import CountryRegion, County, CountEntry
+from corona_plots.models import CountIncreaseEntry, CountPercentIncreaseEntry
 
 
 
@@ -16,28 +17,29 @@ class LocationSerializer(serializers.ModelSerializer):
                   'friendly_hash',
                   )
 
-class HistoricEntrySerializer(serializers.ModelSerializer):
+class EntryDateSerializer(serializers.ModelSerializer):
     province_state = serializers.CharField(source='location.province_state')
-    region_country = serializers.CharField(source='location.region_country')
-    county = serializers.CharField(source='location.county')
 
     class Meta:
-        model = HistoricEntry
-        fields = ('id',
-                  'date',
-                  'count',
-                  'increase',
-                  'province_state',
-                  'region_country',
-                  'county',
-                  'location',
-                  'case_status_type_id',
+        model = EntryDate
+        fields = ('date',
+                  #'province_state',
                   )
 
-class HistoricEntryCountSerializer(serializers.ModelSerializer):
+class CountEntrySerializer(serializers.ModelSerializer):
     class Meta:
-        model = HistoricEntry
+        model = CountEntry
         fields = ('count',)
+
+class CountIncreaseEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CountIncreaseEntry
+        fields = ('count_increase',)
+
+class CountPercentIncreaseEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CountPercentIncreaseEntry
+        fields = ('count_percent_increase',)
 
 class ProvinceStateSerializer(serializers.ModelSerializer):
     entries = serializers.StringRelatedField(many=True)

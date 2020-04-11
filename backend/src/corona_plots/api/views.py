@@ -1,7 +1,8 @@
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from corona_plots.models import Location, HistoricEntry, ProvinceState
+from corona_plots.models import Location, EntryDate, ProvinceState
 from corona_plots.models import CountryRegion, County, CaseType
-from .serializers import LocationSerializer, HistoricEntrySerializer
+from corona_plots.models import CountEntry, CountIncreaseEntry, CountPercentIncreaseEntry
+from .serializers import LocationSerializer, EntryDateSerializer
 from .serializers import ProvinceStateSerializer, CountryRegionSerializer
 from .serializers import CountySerializer
 from corona_plots.methods import generate_series
@@ -54,15 +55,27 @@ class CountyDetailView(RetrieveAPIView):
     queryset = County.objects.all()
     serializer_class = CountySerializer
 
-class HistoricEntryListView(MultipleFieldLookupMixin, ListAPIView):
-    queryset = HistoricEntry.objects.all()
-    serializer_class = HistoricEntrySerializer
-    lookup_fields = ('pk', 'province_state')
+class CountEntryListView(ListAPIView):
+    pass
+
+class EntryDateListView(ListAPIView):
+    serializer_class = EntryDateSerializer
+
+    def get_queryset(self):
+        if 'province_state' in self.kwargs:
+            return EntryDate.objects.filter(province_state=self.kwargs['province_state'])
+        elif 'region_country' in self.kwargs:
+            return EntryDate.objects.filter(region_country=self.kwargs['region_country'])
+        elif 'county' in self.kwargs:
+            return EntryDate.objects.filter(county=self.kwargs['county'])
+        else:
+            return EntryDate.objects.all()
 
 
-class HistoricEntryDetailView(RetrieveAPIView):
-    queryset = HistoricEntry.objects.all()
-    serializer_class = HistoricEntrySerializer
+
+class EntryDateDetailView(RetrieveAPIView):
+    queryset = EntryDate.objects.all()
+    serializer_class = EntryDateSerializer
 
 def GetSeries(request):
     locationFriendlyHash = request.GET['friendly_hash']

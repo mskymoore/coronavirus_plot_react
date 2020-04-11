@@ -55,23 +55,39 @@ class County(models.Model):
 
 class Location(models.Model):
     case_types = models.ManyToManyField(CaseType)
-    province_state = models.ForeignKey(ProvinceState, related_name='locations', on_delete=models.DO_NOTHING)
-    region_country = models.ForeignKey(CountryRegion, related_name='locations', on_delete=models.DO_NOTHING)
+    province_state = models.ForeignKey(ProvinceState, null=True, related_name='locations', on_delete=models.DO_NOTHING)
+    region_country = models.ForeignKey(CountryRegion, null=True, related_name='locations', on_delete=models.DO_NOTHING)
     county = models.OneToOneField(County, null=True, on_delete=models.CASCADE)
-    latitude = models.CharField(max_length=50)
-    longitude = models.CharField(max_length=50)
+    latitude = models.CharField(max_length=50, null=True)
+    longitude = models.CharField(max_length=50, null=True)
     friendly_name = models.CharField(max_length=100)
     friendly_hash = models.CharField(primary_key=True, max_length=100)
     def __str__(self):
         return self.friendly_name
 
-class HistoricEntry(models.Model):
+class EntryDate(models.Model):
     date = models.DateField()
-    count = models.IntegerField(default=0)
     location = models.ForeignKey(Location, related_name='entries', null=False, on_delete=models.DO_NOTHING)
-    county = models.ForeignKey(County, related_name='entries', null=True, on_delete=models.DO_NOTHING)
-    province_state = models.ForeignKey(ProvinceState, related_name='entries', null=True, on_delete=models.DO_NOTHING)
-    region_country = models.ForeignKey(CountryRegion, related_name='entries', on_delete=models.DO_NOTHING) 
+
+class Entry(models.Model):
+    value = models.IntegerField(default=0)
     case_status_type_id = models.ForeignKey(CaseType, on_delete=models.DO_NOTHING)
+
     def __str__(self):
-       return str(self.location) + ':' + str(self.date) + ':' + str(self.count)
+       return str(self.date) + ':' + str(self.value)
+
+    def __add__(self, other):
+        self.value = self.value + other.value
+    
+    def __int__(self):
+        return int(self.value)
+
+
+class CountEntry(Entry):
+    date = models.OneToOneField(EntryDate, null=False, on_delete=models.DO_NOTHING)
+    
+class CountIncreaseEntry(Entry):
+    date = models.OneToOneField(EntryDate, null=False, on_delete=models.DO_NOTHING)
+
+class CountPercentIncreaseEntry(Entry):
+    date = models.OneToOneField(EntryDate, null=False, on_delete=models.DO_NOTHING)

@@ -1,5 +1,5 @@
 from .coronaVars import case_status_type_names
-from .models import Location, HistoricEntry
+from .models import Location, EntryDate
 import plotly.offline as po
 import plotly.express as px
 

@@ -20,9 +20,9 @@ def create_hash(friendly_name):
 
 
 class CaseType(models.Model):
-    confirmed = 'cnfd'
-    deaths = 'rip'
-    recovered = 'rcvrd'
+    confirmed = 'confirmed'
+    deaths = 'deaths'
+    recovered = 'recovered'
     case_type_choices =[
         (confirmed, 'confirmed'),
         (deaths, 'deaths'),
@@ -41,15 +41,15 @@ class CountryRegion(models.Model):
 class ProvinceState(models.Model):
     case_types = models.ManyToManyField(CaseType)
     province_state = models.CharField(primary_key=True, max_length=100, default='')
-    region_country = models.ForeignKey(CountryRegion, null=False, on_delete=models.CASCADE)
+    region_country = models.ForeignKey(CountryRegion, related_name='states', null=False, on_delete=models.CASCADE)
     def __str__(self):
         return str(self.province_state)
 
 class County(models.Model):
     case_types = models.ManyToManyField(CaseType)
     county = models.CharField(primary_key=True, max_length=100, default='')
-    province_state = models.ForeignKey(CountryRegion, null=False, on_delete=models.CASCADE)
-    region_country = models.ForeignKey(CountryRegion, null=False, on_delete=models.CASCADE)
+    province_state = models.ForeignKey(ProvinceState, related_name='counties', null=False, on_delete=models.CASCADE)
+    region_country = models.ForeignKey(CountryRegion, related_name='counties', null=False, on_delete=models.CASCADE)
     def __str__(self):
         return str(self.county)
 

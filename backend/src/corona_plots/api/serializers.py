@@ -18,13 +18,15 @@ class LocationSerializer(serializers.ModelSerializer):
                   )
 
 class EntryDateSerializer(serializers.ModelSerializer):
-    province_state = serializers.CharField(source='location.province_state')
-    
-
+    count = serializers.IntegerField(source='countentry.value')
+    count_increase = serializers.IntegerField(source='countincreaseentry.value')
+    count_percent_increase = serializers.IntegerField(source='countpercentincreaseentry.value')
     class Meta:
         model = EntryDate
         fields = ('date',
-                  #'province_state',
+                  'count',
+                  'count_increase',
+                  'count_percent_increase'
                   )
 
 class CountEntrySerializer(serializers.ModelSerializer):

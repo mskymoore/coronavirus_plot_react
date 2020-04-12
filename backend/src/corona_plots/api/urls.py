@@ -8,12 +8,7 @@ from .views import CountyListView, CountyDetailView, GetSeries
 urlpatterns = [
     path('locations', LocationListView.as_view()),
     path('location/<pk>', LocationDetailView.as_view()),
-    path('province_states', ProvinceStateListView.as_view()),
-    path('province_state/<pk>', ProvinceStateDetailView.as_view()),
-    path('country_regions', CountryRegionListView.as_view()),
-    path('country_reigion/<pk>', CountryRegionDetailView.as_view()),
-    path('counties', CountyListView.as_view()),
-    path('county/<pk>', CountyDetailView.as_view()),
-    path('historic_entries/count/<province_state>', EntryDateListView.as_view()),
-    path('series/', GetSeries)
+    path('region_entries/<case_status_type_id>/<region_country>', EntryDateListView.as_view()),
+    path('state_entries/<case_status_type_id>/<province_state>', EntryDateListView.as_view()),
+    path('county_entries/<case_status_type_id>/<county>', EntryDateListView.as_view()),
 ]

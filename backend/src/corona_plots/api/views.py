@@ -69,11 +69,18 @@ class EntryDateListView(ListAPIView):
                         case_status_type_id=self.kwargs['case_status_type_id']
                    )
         elif 'region_country' in self.kwargs:
-            return EntryDate.objects.filter(region_country=self.kwargs['region_country'])
+            return EntryDate.objects.filter(
+                        location__region_country=self.kwargs['region_country'],
+                        loaction__province_state=None,
+                        case_status_type_id=self.kwargs['case_status_type_id']
+                   )
         elif 'county' in self.kwargs:
-            return EntryDate.objects.filter(county=self.kwargs['county'])
+            return EntryDate.objects.filter(
+                        location__county=self.kwargs['county'],
+                        case_status_type_id=self.kwargs['case_status_type_id']
+                   )
         else:
-            return EntryDate.objects.all()
+            return EntryDate.objects.none()
 
 
 

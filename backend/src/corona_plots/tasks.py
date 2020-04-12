@@ -39,6 +39,7 @@ def get_region_location(locs, region):
     return locs[region_hash]
 
 
+#TODO: split into us file and global file 
 # csv_file: csv.DictReader
 # case_status_type: string, one of ['confirmed', 'deaths', 'recovered']
 def update_database(csv_file, case_status_type_id, column_keys, row_start):
@@ -64,7 +65,7 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
         counties = { cnty.county : cnty for cnty in County.objects.all() }
 
         # not all rows have a county entry
-        county = False
+        county = None
 
         # if there is a county key present in the keys sent to this function
         if county_key in column_keys:
@@ -106,26 +107,31 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
         # get or create a location object that is only associated with this region
         region_location = get_region_location(locs, region)
 
-        #if the state isn't in the state hash table
-        if province not in province_state:
-            # create it
-            province = ProvinceState(
-                province_state = province,
-                region_country = region
-            )
+        if province != '':
+            #if the state isn't in the state hash table
+            if province not in province_state:
+                # create it
+                province = ProvinceState(
+                    province_state = province,
+                    region_country = region
+                )
+            else:
+                # grab it
+                province = province_state[province]
+
+
+            # try to add this case type to the state
+            try:
+                province.case_types.add(case_status_type_id)
+            except Exception as e:
+                print(e)
+            province.save()
+            # get or create a location object that is only assicated with this state
+            state_location = get_state_location(locs, province)
+        
         else:
-            # grab it
-            province = province_state[province]
-
-        # try to add this case type to the state
-        try:
-            province.case_types.add(case_status_type_id)
-        except Exception as e:
-            print(e)
-        province.save()
-
-        # get or create a location object that is only assicated with this state
-        state_location = get_state_location(locs, province)
+            province = None
+            state_location = False
 
         # if there was a county
         if county:

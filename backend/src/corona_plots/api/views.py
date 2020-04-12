@@ -48,8 +48,10 @@ class CountryRegionDetailView(RetrieveAPIView):
     serializer_class = CountryRegionSerializer
 
 class CountyListView(ListAPIView):
-    queryset = County.objects.all()
     serializer_class = CountySerializer
+
+    def get_queryset(self):
+        pass
 
 class CountyDetailView(RetrieveAPIView):
     queryset = County.objects.all()

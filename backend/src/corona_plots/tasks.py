@@ -77,10 +77,6 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
         lat = row[column_keys[lat_key]]
         lon = row[column_keys[long_key]]
 
-        # DEBUG
-        if province != 'Texas':
-            continue
-
         # if there was a county
         if county:
             # include it in the friendly name

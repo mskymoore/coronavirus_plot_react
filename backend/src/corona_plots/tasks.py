@@ -37,17 +37,13 @@ def get_region_location(locs, region):
         region.save()
         return region
     return locs[region_hash]
-    #
+
 
 # csv_file: csv.DictReader
 # case_status_type: string, one of ['confirmed', 'deaths', 'recovered']
 def update_database(csv_file, case_status_type_id, column_keys, row_start):
 
     # hashtable the relevant objects for O(1) lookups
-    locs = { loc.friendly_hash: loc for loc in Location.objects.all() }
-    province_state = { ps.province_state : ps for ps in ProvinceState.objects.all() }
-    country_region = { cr.region_country : cr for cr in CountryRegion.objects.all() }
-    counties = { cnty.county : cnty for cnty in County.objects.all() }
     csts = {cst.case_type : cst for cst in  CaseType.objects.all() }
 
 
@@ -59,11 +55,17 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
     else:
         case_status_type_id = csts[case_status_type_id]
 
-    # not all rows have a county entry
-    county = False
 
     # for each row in the csv file
     for row in csv_file:
+        locs = { loc.friendly_hash: loc for loc in Location.objects.all() }
+        province_state = { ps.province_state : ps for ps in ProvinceState.objects.all() }
+        country_region = { cr.region_country : cr for cr in CountryRegion.objects.all() }
+        counties = { cnty.county : cnty for cnty in County.objects.all() }
+
+        # not all rows have a county entry
+        county = False
+
         # if there is a county key present in the keys sent to this function
         if county_key in column_keys:
             # assign the couny accordingly
@@ -185,8 +187,8 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
             print(e)
         location.save()
 
-        # get number entries for this location    
-        locations_entries = EntryDate.objects.filter(location=location) 
+        # get number entries of this type for this location 
+        locations_entries = CountEntry.objects.filter(date__location=location, date__case_status_type_id=case_status_type_id) 
         num_historic_db_entries = len(locations_entries)
 
         # get all actual entries on this row
@@ -208,8 +210,12 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
 
             # try to get the previous date of this location for calculations if it exists
             try:
-                previous_date = EntryDate.objects.get(date=str(previous_date),location=location)
-                previous_date_count = previous_date.countentry
+                previous_entry_date = EntryDate.objects.get(
+                    date=previous_date,
+                    location=location,
+                    case_status_type_id=case_status_type_id
+                )
+                previous_date_count = previous_entry_date.countentry
                 divisor = previous_date_count
                 if int(divisor) == 0:
                     divisor = 100
@@ -223,37 +229,40 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
             date = EntryDate(
                 date = the_date,
                 location = location,
+                case_status_type_id = case_status_type_id
             )
             date.save()
 
             # crete a new CountEntry
             count_entry = CountEntry(
                 date = date,
-                value = int(entry[1]),
-                case_status_type_id = case_status_type_id
+                value = int(entry[1])
+                
             )
             count_entry.save()
 
             # create a new CountIncreaseEntry
             count_inc_entry = CountIncreaseEntry(
                 date = date,
-                value =  int(entry[1]) - int(previous_date_count),
-                case_status_type_id = case_status_type_id
+                value =  int(entry[1]) - int(previous_date_count)
             )
             count_inc_entry.save()
 
             # create a new CountPercentIncreaseEntry
             count_perc_inc_entry = CountPercentIncreaseEntry(
                 date = date,
-                value = 100*(int(count_inc_entry)/int(divisor)),
-                case_status_type_id = case_status_type_id
+                value = 100*(int(count_inc_entry)/int(divisor))
             )
             count_perc_inc_entry.save()
 
             # UPDATE STATE
             # get state location associated previous EntryDate object count
             try:
-                previous_state_date = EntryDate.objects.get(date=previous_date.date, location=state_location)
+                previous_state_date = EntryDate.objects.get(
+                    date=previous_date,
+                    location=state_location,
+                    case_status_type_id=case_status_type_id
+                )
                 previous_state_date_count = previous_state_date.countentry
                 state_divisor = previous_state_date_count
                 if int(state_divisor) == 0:
@@ -265,12 +274,17 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
 
             # get or create the current state location EntryDate object
             try:
-                state_date = EntryDate.objects.get(location=state_location, date=date.date)
+                state_date = EntryDate.objects.get(
+                    location=state_location,
+                    date=date.date,
+                    case_status_type_id = case_status_type_id
+                    )
             except Exception as e:
                 print(e)
                 state_date = EntryDate(
                     date = the_date,
                     location = state_location,
+                    case_status_type_id = case_status_type_id
                 )
                 state_date.save()
 
@@ -282,9 +296,10 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 print(e)
                 state_count_entry = CountEntry(
                     date = state_date,
-                    value = int(entry[1]),
-                    case_status_type_id = case_status_type_id
+                    value = int(entry[1])
+                    
                 )
+                state_count_entry.save()
 
             # get and update or create the current state location CountIncreaseEntry
             try:
@@ -294,8 +309,7 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 print(e)
                 state_inc_entry = CountIncreaseEntry(
                     date = state_date,
-                    value = int(entry[1]) - int(previous_state_date_count),
-                    case_status_type_id = case_status_type_id
+                    value = int(entry[1]) - int(previous_state_date_count)
                 )
                 state_inc_entry.save()
 
@@ -307,14 +321,17 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 print(e)
                 state_perc_inc_entry = CountPercentIncreaseEntry(
                     date = state_date,
-                    value = count_perc_inc_entry.value,
-                    case_status_type_id = case_status_type_id
+                    value = count_perc_inc_entry.value
                 )
                 state_perc_inc_entry.save()
 
             # UPDATE REGION
             try:
-                previous_region_date = EntryDate.objects.get(date=previous_date.date, location=region_location)
+                previous_region_date = EntryDate.objects.get(
+                    date=previous_date,
+                    location=region_location,
+                    case_status_type_id = case_status_type_id
+                )
                 previous_region_date_count = previous_region_date.countentry
                 region_divisor = previous_region_date_count
                 if int(region_divisor) == 0:
@@ -325,12 +342,17 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 region_divisor = 100
 
             try:
-                region_date = EntryDate.objects.get(location=region_location, date=date.date)
+                region_date = EntryDate.objects.get(
+                    location=region_location,
+                    date=date.date,
+                    case_status_type_id=case_status_type_id
+                    )
             except Exception as e:
                 print(e)
                 region_date = EntryDate(
                     date = the_date,
                     location = region_location,
+                    case_status_type_id = case_status_type_id
                 )
                 region_date.save()
 
@@ -341,9 +363,9 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 print(e)
                 region_count_entry = CountEntry(
                     date = region_date,
-                    value = int(entry[1]),
-                    case_status_type_id = case_status_type_id
+                    value = int(entry[1])
                 )
+                region_count_entry.save()
 
             try:
                 region_inc_entry = region_date.countincreaseentry
@@ -352,8 +374,7 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 print(e)
                 region_inc_entry = CountIncreaseEntry(
                     date = region_date,
-                    value = int(entry[1]) - int(previous_region_date_count),
-                    case_status_type_id = case_status_type_id
+                    value = int(entry[1]) - int(previous_region_date_count)
                 )
                 region_inc_entry.save()
 
@@ -364,8 +385,7 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 print(e)
                 region_perc_inc_entry = CountPercentIncreaseEntry(
                     date = region_date,
-                    value = count_perc_inc_entry.value,
-                    case_status_type_id = case_status_type_id
+                    value = count_perc_inc_entry.value
                 )
                 region_perc_inc_entry.save()
 
@@ -386,7 +406,10 @@ def do_data_update():
         update_database(csv_file, case_status_type_name, global_keys, 4)
 
     for case_status_type_name, csv_file in zip(case_status_type_names[:2], csv_us_files):
-        update_database(csv_file, case_status_type_name, us_keys, 11)
+        if case_status_type_name == 'recovered':
+            update_database(csv_file, case_status_type_name, us_keys, 11)
+        else:
+            update_database(csv_file, case_status_type_name, us_keys, 12)
     
 
 @worker_ready.connect

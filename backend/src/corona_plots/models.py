@@ -68,11 +68,10 @@ class Location(models.Model):
 class EntryDate(models.Model):
     date = models.DateField()
     location = models.ForeignKey(Location, related_name='entries', null=False, on_delete=models.DO_NOTHING)
+    case_status_type_id = models.ForeignKey(CaseType, on_delete=models.DO_NOTHING)
 
 class Entry(models.Model):
     value = models.IntegerField(default=0)
-    case_status_type_id = models.ForeignKey(CaseType, on_delete=models.DO_NOTHING)
-
     def __str__(self):
        return str(self.date) + ':' + str(self.value)
 
@@ -81,7 +80,6 @@ class Entry(models.Model):
     
     def __int__(self):
         return int(self.value)
-
 
 class CountEntry(Entry):
     date = models.OneToOneField(EntryDate, null=False, on_delete=models.DO_NOTHING)

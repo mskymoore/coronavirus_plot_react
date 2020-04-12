@@ -60,10 +60,17 @@ class CountEntryListView(ListAPIView):
 
 class EntryDateListView(ListAPIView):
     serializer_class = EntryDateSerializer
-
+    self.kwargs{
+        'case_status_type_id' = 'deaths',
+        'province_state' = 'texas'
+    }
     def get_queryset(self):
         if 'province_state' in self.kwargs:
-            return EntryDate.objects.filter(province_state=self.kwargs['province_state'])
+            return EntryDate.objects.filter(
+                        location__province_state=self.kwargs['province_state'],
+                        location__region_country=None,
+                        case_status_type_id=self.kwargs['case_status_type_id']
+                   )
         elif 'region_country' in self.kwargs:
             return EntryDate.objects.filter(region_country=self.kwargs['region_country'])
         elif 'county' in self.kwargs:

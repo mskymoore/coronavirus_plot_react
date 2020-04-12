@@ -19,6 +19,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class EntryDateSerializer(serializers.ModelSerializer):
     province_state = serializers.CharField(source='location.province_state')
+    
 
     class Meta:
         model = EntryDate

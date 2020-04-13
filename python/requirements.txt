@@ -1,0 +1,11 @@
+django
+djangorestframework
+django-cors-headers
+django-celery-beat
+pandas
+plotly
+requests
+PyGithub
+celery
+redis
+psycopg2

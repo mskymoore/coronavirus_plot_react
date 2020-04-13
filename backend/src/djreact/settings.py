@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from datetime import timedelta as td
+import mimetypes
+mimetypes.add_type("text/css", "css", True)
+mimetypes.add_type("text/javascript", "js", True)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,10 +27,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '+jm8bn233ye8vad#2+yck-9-#$578q18n5awqz*)37oq#v@3g!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # ALLOWED_HOSTS = ['333.isos.tech', '172.31.25.48', '54.233.113.17', '127.0.0.1']
-ALLOWED_HOSTS = ['django']
+ALLOWED_HOSTS = ['django', '333.isos.tech']
 
 REDIS_HOST = '127.0.0.1'
 POSTGRES_HOST = 'db'
@@ -136,7 +139,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_DIR = [
+   os.path.join(BASE_DIR, 'static')
+]
 
 
 # Celery config

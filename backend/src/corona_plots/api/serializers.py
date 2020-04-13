@@ -66,4 +66,4 @@ class CountryRegionSerializer(serializers.ModelSerializer):
 class CountySerializer(serializers.ModelSerializer):
     class Meta:
         model = County
-        fields = ('county', 'entries')
+        fields = ('county',)

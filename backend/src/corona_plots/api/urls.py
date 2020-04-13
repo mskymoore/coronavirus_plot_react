@@ -8,7 +8,7 @@ from .views import CaseTypeListView
 
 urlpatterns = [
     path('locations', LocationListView.as_view()),
-    path('counties/<province_state>', CountyListView.as_view),
+    path('counties/<province_state>', CountyListView.as_view()),
     path('states/<region_country>', ProvinceStateListView.as_view()),
     path('regions', CountryRegionListView.as_view()),
     path('location/<pk>', LocationDetailView.as_view()),

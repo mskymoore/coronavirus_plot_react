@@ -51,7 +51,10 @@ class CountyListView(ListAPIView):
     serializer_class = CountySerializer
 
     def get_queryset(self):
-        pass
+        if 'province_state' in self.kwargs:
+            return County.objects.filter(
+                province_state__province_state=self.kwargs['province_state']
+            )
 
 class CountyDetailView(RetrieveAPIView):
     queryset = County.objects.all()

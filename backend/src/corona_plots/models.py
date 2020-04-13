@@ -34,20 +34,20 @@ class CaseType(models.Model):
 
 class CountryRegion(models.Model):
     case_types = models.ManyToManyField(CaseType)
-    region_country = models.CharField(primary_key=True, max_length=100, default='')
+    region_country = models.CharField(max_length=100, default='')
     def __str__(self):
         return str(self.region_country)
 
 class ProvinceState(models.Model):
     case_types = models.ManyToManyField(CaseType)
-    province_state = models.CharField(primary_key=True, max_length=100, default='')
+    province_state = models.CharField(max_length=100, default='')
     region_country = models.ForeignKey(CountryRegion, related_name='states', null=False, on_delete=models.CASCADE)
     def __str__(self):
         return str(self.province_state)
 
 class County(models.Model):
     case_types = models.ManyToManyField(CaseType)
-    county = models.CharField(primary_key=True, max_length=100, default='')
+    county = models.CharField(max_length=100, default='')
     province_state = models.ForeignKey(ProvinceState, related_name='counties', null=False, on_delete=models.CASCADE)
     region_country = models.ForeignKey(CountryRegion, related_name='counties', null=False, on_delete=models.CASCADE)
     def __str__(self):
@@ -57,7 +57,7 @@ class Location(models.Model):
     case_types = models.ManyToManyField(CaseType)
     province_state = models.ForeignKey(ProvinceState, null=True, related_name='locations', on_delete=models.DO_NOTHING)
     region_country = models.ForeignKey(CountryRegion, null=True, related_name='locations', on_delete=models.DO_NOTHING)
-    county = models.OneToOneField(County, null=True, on_delete=models.CASCADE)
+    county = models.ForeignKey(County, null=True, on_delete=models.CASCADE)
     latitude = models.CharField(max_length=50, null=True)
     longitude = models.CharField(max_length=50, null=True)
     friendly_name = models.CharField(max_length=100)

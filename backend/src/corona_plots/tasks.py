@@ -12,7 +12,7 @@ from datetime import timedelta as td
 from hashlib import sha256
 
 
-def get_state_location(locs, state):
+def get_state_location(locs, state, case_status_type_id):
     state_hash = create_hash(state.province_state)
     if state_hash not in locs:
         state = Location(
@@ -21,11 +21,13 @@ def get_state_location(locs, state):
             friendly_hash = state_hash
         )
         state.save()
+        state.case_types.add(case_status_type_id)
         return state
+    locs[state_hash].case_types.add(case_status_type_id)
     return locs[state_hash]
 
 
-def get_region_location(locs, region):
+def get_region_location(locs, region, case_status_type_id):
     region_hash = create_hash(region.region_country)
     if region_hash not in locs:
         region = Location(
@@ -35,11 +37,14 @@ def get_region_location(locs, region):
 
         )
         region.save()
+        region.case_types.add(case_status_type_id)
         return region
+    locs[region_hash].case_types.add(case_status_type_id)
     return locs[region_hash]
 
 
 #TODO: split into us file and global file 
+
 # csv_file: csv.DictReader
 # case_status_type: string, one of ['confirmed', 'deaths', 'recovered']
 def update_database(csv_file, case_status_type_id, column_keys, row_start):
@@ -77,6 +82,7 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
         region = row[column_keys[country_key]]
         lat = row[column_keys[lat_key]]
         lon = row[column_keys[long_key]]
+        
 
         # if there was a county
         if county:
@@ -98,14 +104,12 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
             region = country_region[region]
 
         # try to add this case type to the region    
-        try:
-            region.case_types.add(case_status_type_id)
-        except Exception as e:
-            print(e)
         region.save()
+        region.case_types.add(case_status_type_id)
+        
 
         # get or create a location object that is only associated with this region
-        region_location = get_region_location(locs, region)
+        region_location = get_region_location(locs, region, case_status_type_id)
 
         if province != '':
             #if the state isn't in the state hash table
@@ -121,13 +125,11 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
 
 
             # try to add this case type to the state
-            try:
-                province.case_types.add(case_status_type_id)
-            except Exception as e:
-                print(e)
             province.save()
+            province.case_types.add(case_status_type_id)
+            
             # get or create a location object that is only assicated with this state
-            state_location = get_state_location(locs, province)
+            state_location = get_state_location(locs, province, case_status_type_id)
         
         else:
             province = None
@@ -148,11 +150,9 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 county = counties[county]
 
             # try to add this case type to this county
-            try:
-                county.case_types.add(case_status_type_id)
-            except Exception as e:
-                print(e)
             county.save()
+            county.case_types.add(case_status_type_id)
+            
 
         # if this location not in the hash table of locations
         if friendly_hash not in locs:
@@ -169,7 +169,7 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                     friendly_hash = friendly_hash
                 )
             else:
-                # create a location without a null county
+                # create a location with a null county
                 location = Location(
                     province_state = province,
                     region_country = region,
@@ -183,11 +183,9 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
             location = locs[friendly_hash]
 
         # try to add this case type to this location
-        try:
-            location.case_types.add(case_status_type_id)
-        except Exception as e:
-            print(e)
         location.save()
+        location.case_types.add(case_status_type_id)
+        
 
         # get number entries of this type for this location 
         locations_entries = CountEntry.objects.filter(date__location=location, date__case_status_type_id=case_status_type_id) 
@@ -256,140 +254,142 @@ def update_database(csv_file, case_status_type_id, column_keys, row_start):
                 value = 100*(int(count_inc_entry)/int(divisor))
             )
             count_perc_inc_entry.save()
-
-            # UPDATE STATE
-            # get state location associated previous EntryDate object count
-            try:
-                previous_state_date = EntryDate.objects.get(
-                    date=previous_date,
-                    location=state_location,
-                    case_status_type_id=case_status_type_id
-                )
-                previous_state_date_count = previous_state_date.countentry
-                state_divisor = previous_state_date_count
-                if int(state_divisor) == 0:
+            
+            # if processing a US file
+            if county:
+                # UPDATE STATE
+                # get state location associated previous EntryDate object count
+                try:
+                    previous_state_date = EntryDate.objects.get(
+                        date=previous_date,
+                        location=state_location,
+                        case_status_type_id=case_status_type_id
+                    )
+                    previous_state_date_count = previous_state_date.countentry
+                    state_divisor = previous_state_date_count
+                    if int(state_divisor) == 0:
+                        state_divisor = 100
+                except Exception as e:
+                    print(e)
+                    previous_state_date_count = 0
                     state_divisor = 100
-            except Exception as e:
-                print(e)
-                previous_state_date_count = 0
-                state_divisor = 100
 
-            # get or create the current state location EntryDate object
-            try:
-                state_date = EntryDate.objects.get(
-                    location=state_location,
-                    date=date.date,
-                    case_status_type_id = case_status_type_id
+                # get or create the current state location EntryDate object
+                try:
+                    state_date = EntryDate.objects.get(
+                        location=state_location,
+                        date=date.date,
+                        case_status_type_id = case_status_type_id
+                        )
+                except Exception as e:
+                    print(e)
+                    state_date = EntryDate(
+                        date = the_date,
+                        location = state_location,
+                        case_status_type_id = case_status_type_id
                     )
-            except Exception as e:
-                print(e)
-                state_date = EntryDate(
-                    date = the_date,
-                    location = state_location,
-                    case_status_type_id = case_status_type_id
-                )
-                state_date.save()
+                    state_date.save()
 
-            # get and update or create the current state location CountEntry
-            try:
-                state_count_entry = state_date.countentry
-                state_count_entry + count_entry
-            except Exception as e:
-                print(e)
-                state_count_entry = CountEntry(
-                    date = state_date,
-                    value = int(entry[1])
-                    
-                )
-                state_count_entry.save()
+                # get and update or create the current state location CountEntry
+                try:
+                    state_count_entry = state_date.countentry
+                    state_count_entry + count_entry
+                except Exception as e:
+                    print(e)
+                    state_count_entry = CountEntry(
+                        date = state_date,
+                        value = int(entry[1])
 
-            # get and update or create the current state location CountIncreaseEntry
-            try:
-                state_inc_entry = state_date.countincreaseentry
-                state_inc_entry + count_entry
-            except Exception as e:
-                print(e)
-                state_inc_entry = CountIncreaseEntry(
-                    date = state_date,
-                    value = int(entry[1]) - int(previous_state_date_count)
-                )
-                state_inc_entry.save()
+                    )
+                    state_count_entry.save()
 
-            # get and update or create the current state location CountPercentIncreaseEntry
-            try:
-                state_perc_inc_entry = state_date.countpercentincreaseentry
-                state_perc_inc_entry = 100*(int(state_inc_entry)/int(state_divisor))
-            except Exception as e:
-                print(e)
-                state_perc_inc_entry = CountPercentIncreaseEntry(
-                    date = state_date,
-                    value = count_perc_inc_entry.value
-                )
-                state_perc_inc_entry.save()
+                # get and update or create the current state location CountIncreaseEntry
+                try:
+                    state_inc_entry = state_date.countincreaseentry
+                    state_inc_entry + count_entry
+                except Exception as e:
+                    print(e)
+                    state_inc_entry = CountIncreaseEntry(
+                        date = state_date,
+                        value = int(entry[1]) - int(previous_state_date_count)
+                    )
+                    state_inc_entry.save()
 
-            # UPDATE REGION
-            try:
-                previous_region_date = EntryDate.objects.get(
-                    date=previous_date,
-                    location=region_location,
-                    case_status_type_id = case_status_type_id
-                )
-                previous_region_date_count = previous_region_date.countentry
-                region_divisor = previous_region_date_count
-                if int(region_divisor) == 0:
+                # get and update or create the current state location CountPercentIncreaseEntry
+                try:
+                    state_perc_inc_entry = state_date.countpercentincreaseentry
+                    state_perc_inc_entry = 100*(int(state_inc_entry)/int(state_divisor))
+                except Exception as e:
+                    print(e)
+                    state_perc_inc_entry = CountPercentIncreaseEntry(
+                        date = state_date,
+                        value = count_perc_inc_entry.value
+                    )
+                    state_perc_inc_entry.save()
+
+                # UPDATE REGION
+                try:
+                    previous_region_date = EntryDate.objects.get(
+                        date=previous_date,
+                        location=region_location,
+                        case_status_type_id = case_status_type_id
+                    )
+                    previous_region_date_count = previous_region_date.countentry
+                    region_divisor = previous_region_date_count
+                    if int(region_divisor) == 0:
+                        region_divisor = 100
+                except Exception as e:
+                    print(e)
+                    previous_region_date_count = 0
                     region_divisor = 100
-            except Exception as e:
-                print(e)
-                previous_region_date_count = 0
-                region_divisor = 100
 
-            try:
-                region_date = EntryDate.objects.get(
-                    location=region_location,
-                    date=date.date,
-                    case_status_type_id=case_status_type_id
+                try:
+                    region_date = EntryDate.objects.get(
+                        location=region_location,
+                        date=date.date,
+                        case_status_type_id=case_status_type_id
+                        )
+                except Exception as e:
+                    print(e)
+                    region_date = EntryDate(
+                        date = the_date,
+                        location = region_location,
+                        case_status_type_id = case_status_type_id
                     )
-            except Exception as e:
-                print(e)
-                region_date = EntryDate(
-                    date = the_date,
-                    location = region_location,
-                    case_status_type_id = case_status_type_id
-                )
-                region_date.save()
+                    region_date.save()
 
-            try:
-                region_count_entry = region_date.countentry
-                region_count_entry + count_entry
-            except Exception as e:
-                print(e)
-                region_count_entry = CountEntry(
-                    date = region_date,
-                    value = int(entry[1])
-                )
-                region_count_entry.save()
+                try:
+                    region_count_entry = region_date.countentry
+                    region_count_entry + count_entry
+                except Exception as e:
+                    print(e)
+                    region_count_entry = CountEntry(
+                        date = region_date,
+                        value = int(entry[1])
+                    )
+                    region_count_entry.save()
 
-            try:
-                region_inc_entry = region_date.countincreaseentry
-                region_inc_entry + count_entry
-            except Exception as e:
-                print(e)
-                region_inc_entry = CountIncreaseEntry(
-                    date = region_date,
-                    value = int(entry[1]) - int(previous_region_date_count)
-                )
-                region_inc_entry.save()
+                try:
+                    region_inc_entry = region_date.countincreaseentry
+                    region_inc_entry + count_entry
+                except Exception as e:
+                    print(e)
+                    region_inc_entry = CountIncreaseEntry(
+                        date = region_date,
+                        value = int(entry[1]) - int(previous_region_date_count)
+                    )
+                    region_inc_entry.save()
 
-            try:
-                region_perc_inc_entry = region_date.countpercentincreaseentry
-                region_perc_inc_entry = 100*(int(region_inc_entry)/int(region_divisor))
-            except Exception as e:
-                print(e)
-                region_perc_inc_entry = CountPercentIncreaseEntry(
-                    date = region_date,
-                    value = count_perc_inc_entry.value
-                )
-                region_perc_inc_entry.save()
+                try:
+                    region_perc_inc_entry = region_date.countpercentincreaseentry
+                    region_perc_inc_entry = 100*(int(region_inc_entry)/int(region_divisor))
+                except Exception as e:
+                    print(e)
+                    region_perc_inc_entry = CountPercentIncreaseEntry(
+                        date = region_date,
+                        value = count_perc_inc_entry.value
+                    )
+                    region_perc_inc_entry.save()
 
 
             print('new {status_type} historical entry {num} for {date} {location}'.format(
@@ -404,14 +404,16 @@ def do_data_update():
     csv_global_files = [get_file(csv_url) for csv_url in csv_global_urls]
     csv_us_files = [get_file(csv_url) for csv_url in csv_us_urls]
     
-    for case_status_type_name, csv_file in zip(case_status_type_names, csv_global_files):
-        update_database(csv_file, case_status_type_name, global_keys, 4)
-
     for case_status_type_name, csv_file in zip(case_status_type_names[:2], csv_us_files):
         if case_status_type_name == 'recovered':
             update_database(csv_file, case_status_type_name, us_keys, 11)
         else:
-            update_database(csv_file, case_status_type_name, us_keys, 12)
+            update_database(csv_file, case_status_type_name, us_keys, 12) 
+
+    for case_status_type_name, csv_file in zip(case_status_type_names, csv_global_files):
+        update_database(csv_file, case_status_type_name, global_keys, 4)
+
+    
     
 
 @worker_ready.connect

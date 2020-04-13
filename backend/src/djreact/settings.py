@@ -26,7 +26,8 @@ SECRET_KEY = '+jm8bn233ye8vad#2+yck-9-#$578q18n5awqz*)37oq#v@3g!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['333.isos.tech', '172.31.25.48', '54.233.113.17']
+# ALLOWED_HOSTS = ['333.isos.tech', '172.31.25.48', '54.233.113.17', '127.0.0.1']
+ALLOWED_HOSTS = ['django']
 
 REDIS_HOST = '127.0.0.1'
 POSTGRES_HOST = 'db'
@@ -46,9 +47,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -80,22 +81,22 @@ WSGI_APPLICATION = 'djreact.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'postgres',
-#         'USER': 'postgres',
-#         'HOST': POSTGRES_HOST,
-#         'PORT': 5432,
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': POSTGRES_HOST,
+        'PORT': 5432,
+    }
+}
 
 
 # Password validation
@@ -165,3 +166,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = False
+# CORS_ORIGIN_WHITELIST = [
+#     "https//:localhost:8889",
+# ]

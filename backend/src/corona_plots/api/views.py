@@ -2,9 +2,9 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from corona_plots.models import Location, EntryDate, ProvinceState
 from corona_plots.models import CountryRegion, County, CaseType
 from corona_plots.models import CountEntry, CountIncreaseEntry, CountPercentIncreaseEntry
-from .serializers import LocationSerializer, EntryDateSerializer
+from .serializers import LocationSerializer, EntryDateSerializer, CaseTypeSerializer
 from .serializers import ProvinceStateSerializer, CountryRegionSerializer
-from .serializers import CountySerializer
+from .serializers import CountySerializer, CaseTypeSerializer
 from corona_plots.methods import generate_series
 from django.http import HttpResponse
 import json
@@ -60,6 +60,16 @@ class CountyDetailView(RetrieveAPIView):
 class CountEntryListView(ListAPIView):
     pass
 
+
+class CaseTypeListView(ListAPIView):
+    serializer_class = CaseTypeSerializer
+
+    def get_queryset(self):
+        if 'hash' in self.kwargs:
+            return CaseType.objects.filter(
+                location__friendly_hash=self.kwargs['hash']
+            )
+
 class EntryDateListView(ListAPIView):
     serializer_class = EntryDateSerializer
 
@@ -81,6 +91,11 @@ class EntryDateListView(ListAPIView):
                         location__county=self.kwargs['county'],
                         case_status_type_id=self.kwargs['case_status_type_id']
                    )
+        elif 'hash' in self.kwargs:
+            return EntryDate.objects.filter(
+                        location__friendly_hash=self.kwargs['hash'],
+                        case_status_type_id=self.kwargs['case_status_type_id']
+                   ) 
         else:
             return EntryDate.objects.none()
 

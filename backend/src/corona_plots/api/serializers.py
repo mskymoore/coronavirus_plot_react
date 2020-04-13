@@ -1,20 +1,22 @@
 from rest_framework import serializers
-from corona_plots.models import Location, EntryDate, ProvinceState
+from corona_plots.models import Location, EntryDate, ProvinceState, CaseType
 from corona_plots.models import CountryRegion, County, CountEntry
 from corona_plots.models import CountIncreaseEntry, CountPercentIncreaseEntry
 
 
 
 class LocationSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Location
-        fields = ('province_state',
+        fields = ('case_types',
+                  'province_state',
                   'region_country',
                   'county',
                   'latitude',
                   'longitude',
-                  'friendly_name',
                   'friendly_hash',
+                  'friendly_name'
                   )
 
 class EntryDateSerializer(serializers.ModelSerializer):
@@ -28,6 +30,12 @@ class EntryDateSerializer(serializers.ModelSerializer):
                   'count_increase',
                   'count_percent_increase'
                   )
+
+class CaseTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaseType
+        fields = ('case_type',)
+
 
 class CountEntrySerializer(serializers.ModelSerializer):
     class Meta:

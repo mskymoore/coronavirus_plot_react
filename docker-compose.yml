@@ -9,8 +9,6 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
     expose:
       - "5432"
-    ports:
-      - 0.0.0.0:5432:5432
 
   redis:
     container_name: redis
@@ -33,7 +31,7 @@ services:
 
   django:
     build: .
-    image: corona_plots:lastest
+    image: corona_plots:latest
     command: sh runserver.sh
     links:
       - redis:redis
@@ -41,7 +39,7 @@ services:
     expose:
       - "8080"
     volumes:
-      - .:/opt/coronavirus_plot_web
+      - ./backend/src:/opt/coronavirus_plot_web
     depends_on:
       - db
       - redis
@@ -53,8 +51,8 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis
     volumes:
-      - .:/opt/coronavirus_plot_web
-    command: celery worker -A coronavirus_plot_web -B -l info
+      - ./backend/src:/opt/coronavirus_plot_web
+    command: celery worker -A djreact -B -l info
     depends_on:
       - django
       - redis

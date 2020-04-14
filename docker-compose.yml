@@ -1,20 +1,25 @@
 version: '3'
+networks:
+  dbnetwork:
+  tasknetwork:
+  apinetwork:
+
 services:
 
   db:
     image: postgres
     volumes:
       - ./data/postgresql-data:/var/lib/postgresql/data
+    networks:
+      - dbnetwork
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-    expose:
-      - "5432"
 
   redis:
     container_name: redis
     image: redis:3.2.0
-    expose:
-      - "6379"
+    networks:
+      - tasknetwork
     volumes:
       - ./data/redis-data:/data
     command: redis-server
@@ -24,9 +29,8 @@ services:
     ports:
       - 0.0.0.0:80:80
       - 0.0.0.0:443:443
-    links:
-      - django:django
-      - node:node
+    networks:
+      - apinetwork
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - /etc/letsencrypt:/etc/letsencrypt
@@ -34,8 +38,8 @@ services:
 
   node:
     build: ./node
-    expose:
-      - "8080"
+    networks:
+      - apinetwork
     volumes:
       - ./frontend/gui/:/opt/djreact
     command: serve -s build -l tcp://node:8080
@@ -45,27 +49,26 @@ services:
     build: ./python
     image: corona_plots:latest
     command: sh runserver.sh
-    links:
-      - redis:redis
-      - db:db
-    expose:
-      - "8080"
+    networks:
+      - apinetwork
+      - dbnetwork
     volumes:
       - ./backend/src:/opt/coronavirus_plot_web
     depends_on:
       - db
       - redis
   
-  #celery:
-  #  image: corona_plots:latest
-  #  links: 
-  #    - redis:redis
-  #  environment:
-  #    - CELERY_BROKER_URL=redis://redis
-  #  volumes:
-  #    - ./backend/src:/opt/coronavirus_plot_web
-  #  command: celery worker -A djreact -B -l info
-  #  depends_on:
-  #    - django
-  #    - redis
-  #    - db
+  celery:
+    image: corona_plots:latest
+    networks:
+      - dbnetwork
+      - tasknetwork
+    environment:
+      - CELERY_BROKER_URL=redis://redis
+    volumes:
+      - ./backend/src:/opt/coronavirus_plot_web
+    command: celery worker -A djreact -B -l info
+    depends_on:
+      - django
+      - redis
+      - db

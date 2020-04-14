@@ -415,15 +415,8 @@ def do_data_update():
             update_database(csv_file, case_status_type_name, us_keys, 11)
         else:
             update_database(csv_file, case_status_type_name, us_keys, 12)
-    
-    
 
 
-    
-
-    
-    
-
-@worker_ready.connect
-def update_data(sender=None, conf=None, **kwargs):
-    do_data_update()
+# @worker_ready.connect
+# def update_data(sender=None, conf=None, **kwargs):
+#     do_data_update()
